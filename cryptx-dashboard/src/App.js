@@ -48,14 +48,23 @@ const App = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[300px]">
-              <LiveMarket />
-            </div>
-            <div className="flex-1 min-w-[300px]">
-              <Transactions cryptoData={cryptoData}/>
-            </div>
-          </div>
+          <div className="flex flex-wrap gap-4 items-stretch">
+  {/* LiveMarket takes up 2/3 of the page */}
+  <div className="flex-[2_2_0%] min-w-[300px] h-full">
+    <div className="h-full">
+      <LiveMarket />
+    </div>
+  </div>
+  
+  {/* Transactions takes up 1/3 of the page */}
+  <div className="flex-[1_1_0%] min-w-[300px] h-full">
+    <div className="h-full">
+      <Transactions cryptoData={cryptoData} />
+    </div>
+  </div>
+</div>
+
+
         </div>
       </div>
     </div>

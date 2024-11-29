@@ -21,15 +21,22 @@ const LiveMarket = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch cryptocurrency data from the CoinCap API
         const response = await axios.get("https://api.coincap.io/v2/assets");
-        const cryptoData = response.data.data.slice(0, 4); // Limit to 4 cryptos
-        const marketInfo = cryptoData.map((crypto) => ({
+        const cryptos = response.data.data.filter((crypto) =>
+          ["bitcoin", "ethereum", "litecoin", "cardano"].includes(crypto.id)
+        );
+
+        // Map the data to include the required information
+        const marketInfo = cryptos.map((crypto) => ({
           name: crypto.name,
           symbol: crypto.symbol,
           price: parseFloat(crypto.priceUsd).toFixed(2),
           change: parseFloat(crypto.changePercent24Hr).toFixed(2),
-          history: Array.from({ length: 30 }, () => Math.random() * 800), // Fake data
+          logo: crypto.logo, // Logo (Icon) URL from CoinCap API
+          history: Array.from({ length: 30 }, () => Math.random() * 800), // Fake data for chart
         }));
+
         setMarketData(marketInfo);
       } catch (error) {
         console.error("Error fetching market data:", error);
@@ -55,11 +62,11 @@ const LiveMarket = () => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-6">Live Market</h2>
+    <div className="p-3 bg-white rounded-lg shadow-sm">
+      <h2 className="text-lg font-semibold mb-3">Live Market</h2>
 
       {/* Table Headers */}
-      <div className="grid grid-cols-4 text-sm font-medium text-gray-500 mb-4">
+      <div className="grid grid-cols-4 text-xs font-medium text-gray-500 mb-3">
         <div>Name</div>
         <div>Change</div>
         <div>Price</div>
@@ -67,28 +74,30 @@ const LiveMarket = () => {
       </div>
 
       {/* Cryptocurrency Data */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         {marketData.map((crypto, index) => (
           <div
             key={index}
-            className="grid grid-cols-4 items-center p-4 bg-gray-50 rounded-lg shadow-sm"
+            className="grid grid-cols-4 items-center p-2 bg-gray-50 rounded-lg shadow-sm"
           >
-            {/* Name and Symbol */}
-            <div className="flex items-center space-x-4">
-              <div
-                className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200"
-              >
-                <span className="text-lg font-bold">{crypto.symbol[0]}</span>
+            {/* Name, Symbol, and Icon */}
+            <div className="flex items-center space-x-3">
+              <div className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-200">
+                <img
+                  src={crypto.logo} // Display the logo
+                  alt={crypto.name}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
-                <h3 className="text-lg font-medium">{crypto.name}</h3>
-                <p className="text-sm text-gray-500">{crypto.symbol}</p>
+                <h3 className="text-xs font-medium">{crypto.name}</h3>
+                <p className="text-xs text-gray-500">{crypto.symbol}</p>
               </div>
             </div>
 
             {/* Change */}
             <div
-              className={`text-lg font-bold ${
+              className={`text-xs font-bold ${
                 crypto.change > 0 ? "text-green-500" : "text-red-500"
               }`}
             >
@@ -96,10 +105,10 @@ const LiveMarket = () => {
             </div>
 
             {/* Price */}
-            <div className="text-lg font-medium">${crypto.price}</div>
+            <div className="text-xs font-medium">${crypto.price}</div>
 
             {/* Graph */}
-            <div className="w-full h-24">
+            <div className="w-full h-12">
               <Line
                 data={{
                   labels: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
@@ -107,7 +116,7 @@ const LiveMarket = () => {
                     {
                       data: crypto.history,
                       borderColor: getGraphColor(crypto.name),
-                      borderWidth: 2,
+                      borderWidth: 1.5,
                       tension: 0.4,
                     },
                   ],

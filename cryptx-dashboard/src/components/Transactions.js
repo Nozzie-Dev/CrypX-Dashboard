@@ -7,9 +7,9 @@ const Transactions = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch cryptocurrency data
+        // Fetch cryptocurrency data from CoinCap API
         const response = await axios.get("https://api.coincap.io/v2/assets");
-        const cryptoData = response.data.data.slice(0, 4); // Limit to 4 cryptos
+        const cryptoData = response.data.data.slice(0, 4); // Limit to top 4 cryptos
 
         // Simulate transaction history
         const simulatedTransactions = cryptoData.map((crypto, index) => {
@@ -17,10 +17,10 @@ const Transactions = () => {
             name: crypto.name,
             symbol: crypto.symbol,
             price: parseFloat(crypto.priceUsd).toFixed(2),
-            transactionType: Math.random() > 0.5 ? "Buy" : "Received", // Randomized
-            amount: Math.floor(Math.random() * 10000) + 100, // Simulate amount
+            transactionType: Math.random() > 0.5 ? "Buy" : "Received", // Randomized transaction type
+            amount: Math.floor(Math.random() * 10000) + 100, // Simulate transaction amount
             time: new Date(
-              Date.now() - index * 60 * 60 * 1000 // Simulated times
+              Date.now() - index * 60 * 60 * 1000 // Simulated time (1 hour apart)
             ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           };
         });
@@ -45,7 +45,7 @@ const Transactions = () => {
           >
             {/* Left: Icon and Name */}
             <div className="flex items-center space-x-3">
-              {/* Rounded Icon */}
+              {/* Transaction Type Icon */}
               <div
                 className={`w-8 h-8 flex items-center justify-center rounded-full ${
                   transaction.transactionType === "Buy"
@@ -57,9 +57,7 @@ const Transactions = () => {
               </div>
               <div>
                 <h3 className="text-sm font-medium">{transaction.name}</h3>
-                <p className="text-xs text-gray-500">
-                  {transaction.transactionType}
-                </p>
+                <p className="text-xs text-gray-500">{transaction.transactionType}</p>
               </div>
             </div>
 
