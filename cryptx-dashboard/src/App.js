@@ -2,6 +2,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import StatCards from "./components/StatCards";
 import LiveMarket from "./components/LiveMarket";
+import Transactions from "./components/Transactions";
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
         <Header />
         <StatCards/>
         <LiveMarket/>
+        <Transactions/>
       </div>
       
     </div>
