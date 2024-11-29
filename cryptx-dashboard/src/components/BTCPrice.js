@@ -8,13 +8,16 @@ import {
   LinearScale,
   PointElement,
   Tooltip,
+  Title,
 } from "chart.js";
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip);
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Title);
 
 const BTCPrices = () => {
   const [btcPrices, setBtcPrices] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(null);
+  const [hoveredPrice, setHoveredPrice] = useState(null);
+  const [hoveredLabel, setHoveredLabel] = useState(null);
 
   useEffect(() => {
     const fetchBTCData = async () => {
@@ -66,7 +69,7 @@ const BTCPrices = () => {
     responsive: true,
     plugins: {
       tooltip: {
-        enabled: true,
+        enabled: false, // Disable the default tooltip
         backgroundColor: "#7B61FF",
         titleColor: "#ffffff",
         bodyColor: "#ffffff",
@@ -86,6 +89,20 @@ const BTCPrices = () => {
         ticks: { color: "#9CA3AF" },
       },
     },
+    hover: {
+      mode: "nearest",
+      intersect: false,
+      onHover: (event, chartElement) => {
+        if (chartElement && chartElement.length > 0) {
+          const index = chartElement[0].index;
+          setHoveredPrice(btcPrices[index]);
+          setHoveredLabel(data.labels[index]);
+        } else {
+          setHoveredPrice(null);
+          setHoveredLabel(null);
+        }
+      },
+    },
   };
 
   return (
@@ -93,7 +110,13 @@ const BTCPrices = () => {
       <h2 className="text-xl font-bold mb-4">BTC Prices</h2>
       <div className="relative">
         <Line data={data} options={options} />
-        {currentPrice && (
+        {hoveredPrice !== null && hoveredLabel !== null && (
+          <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-purple-500 text-white px-3 py-1 rounded-lg shadow-lg">
+            <p>{hoveredLabel}</p>
+            <p>${hoveredPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+        )}
+        {currentPrice && !hoveredPrice && (
           <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-purple-500 text-white px-3 py-1 rounded-lg shadow-lg">
             ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
