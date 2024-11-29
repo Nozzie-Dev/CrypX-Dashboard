@@ -1,5 +1,6 @@
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+import StatCards from "./components/StatCards";
 
 const App = () => {
   return (
@@ -7,6 +8,7 @@ const App = () => {
       <Sidebar />
       <div className="flex-1">
         <Header />
+        <StatCards/>
       </div>
       
     </div>
