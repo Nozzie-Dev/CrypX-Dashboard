@@ -1,4 +1,3 @@
-// src/components/StatCards.jsx
 const StatCards = () => {
     const data = [
       { name: "Bitcoin - BTC", value: "$40,291", change: "+0.25%" },
