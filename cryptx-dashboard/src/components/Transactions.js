@@ -1,66 +1,78 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 const Transactions = () => {
-    const transactionsData = [
-      {
-        name: "Ethereum",
-        type: "Received",
-        amount: "$24,102",
-        time: "Today, 19:30",
-        iconColor: "bg-green-500",
-      },
-      {
-        name: "Bitcoin",
-        type: "Buy",
-        amount: "$4,157",
-        time: "Today, 14:32",
-        iconColor: "bg-orange-500",
-      },
-      {
-        name: "Bitcoin",
-        type: "Buy",
-        amount: "$64,784",
-        time: "Today, 12:50",
-        iconColor: "bg-orange-500",
-      },
-      {
-        name: "Litecoin",
-        type: "Buy",
-        amount: "$14,265",
-        time: "Today, 09:38",
-        iconColor: "bg-orange-500",
-      },
-    ];
-  
-    return (
-      <div className="p-4 bg-white rounded-lg shadow-md">
-        <h2 className="text-xl font-bold mb-4">Transactions</h2>
-        <ul className="space-y-4">
-          {transactionsData.map((transaction, index) => (
-            <li key={index} className="flex items-center justify-between">
+  const [transactions, setTransactions] = useState([]);
 
-              <div className="flex items-center space-x-4">
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch cryptocurrency data
+        const response = await axios.get("https://api.coincap.io/v2/assets");
+        const cryptoData = response.data.data.slice(0, 4); // Limit to 4 cryptos
 
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.iconColor} text-white`}
-                >
-                  {transaction.name[0]}
-                </div>
-  
-                <div>
-                  <p className="font-medium">{transaction.name}</p>
-                  <p className="text-sm text-gray-500">{transaction.type}</p>
-                </div>
+        // Simulate transaction history
+        const simulatedTransactions = cryptoData.map((crypto, index) => {
+          return {
+            name: crypto.name,
+            symbol: crypto.symbol,
+            price: parseFloat(crypto.priceUsd).toFixed(2),
+            transactionType: Math.random() > 0.5 ? "Buy" : "Received", // Randomized
+            amount: Math.floor(Math.random() * 10000) + 100, // Simulate amount
+            time: new Date(
+              Date.now() - index * 60 * 60 * 1000 // Simulated times
+            ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+        });
+
+        setTransactions(simulatedTransactions);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div className="p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
+      <h2 className="text-xl font-semibold mb-4">Transactions</h2>
+      <div className="space-y-4">
+        {transactions.map((transaction, index) => (
+          <div
+            key={index}
+            className="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm"
+          >
+            {/* Left: Icon and Name */}
+            <div className="flex items-center space-x-3">
+              {/* Rounded Icon */}
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full ${
+                  transaction.transactionType === "Buy"
+                    ? "bg-orange-100 text-orange-500"
+                    : "bg-green-100 text-green-500"
+                }`}
+              >
+                {transaction.transactionType === "Buy" ? "⬇" : "⬆"}
               </div>
-  
-              <div className="text-right">
-                <p className="font-medium">{transaction.amount}</p>
-                <p className="text-sm text-gray-500">{transaction.time}</p>
+              <div>
+                <h3 className="text-sm font-medium">{transaction.name}</h3>
+                <p className="text-xs text-gray-500">
+                  {transaction.transactionType}
+                </p>
               </div>
-            </li>
-          ))}
-        </ul>
+            </div>
+
+            {/* Right: Price, Amount, Time */}
+            <div className="text-right">
+              <p className="text-sm font-semibold">${transaction.price}</p>
+              <p className="text-xs text-gray-500">{transaction.time}</p>
+            </div>
+          </div>
+        ))}
       </div>
-    );
-  };
-  
-  export default Transactions;
-  
+    </div>
+  );
+};
+
+export default Transactions;
