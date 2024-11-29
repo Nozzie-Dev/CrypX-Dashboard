@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import StatCards from "./components/StatCards";
 import LiveMarket from "./components/LiveMarket";
 import Transactions from "./components/Transactions";
+import BTCPrices from "./components/BTCPrice";
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
       <div className="flex-1">
         <Header />
         <StatCards/>
+        <BTCPrices/>
         <LiveMarket/>
         <Transactions/>
       </div>
