@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "axios"; 
+import Litecoin from "../assets/Litecoin.png";
 
 const StatCards = () => {
   const [data, setData] = useState([]);
@@ -22,7 +23,7 @@ const StatCards = () => {
           name: `${crypto.name} - ${crypto.symbol.toUpperCase()}`,
           value: `$${parseFloat(crypto.priceUsd).toFixed(2)}`,
           change: `${parseFloat(crypto.changePercent24Hr).toFixed(2)}%`,
-          icon: `https://cryptologos.cc/logos/${crypto.symbol.toLowerCase()}-logo.png`, // Fetch currency logo
+          icon: Litecoin,
         }));
 
         setData(formattedData);

@@ -1,17 +1,25 @@
+import { SiWindows11 } from "react-icons/si";
+import { RiPieChart2Line } from "react-icons/ri";
+import { GoCreditCard } from "react-icons/go";
+import { BsBagDash } from "react-icons/bs";
+import { LuSettings } from "react-icons/lu";
+import { BiLogOut } from "react-icons/bi";
+import { MdMailOutline } from "react-icons/md";
+
 const Sidebar = () => {
   const menuItems = [
-    { name: "Overview", isActive: true },
-    { name: "Chart", isActive: false },
-    { name: "Transactions", isActive: false },
-    { name: "Wallet", isActive: false },
-    { name: "Mail Box", isActive: false },
-    { name: "Setting", isActive: false },
-    { name: "Logout", isActive: false },
+    { label: <SiWindows11 />, name: "Overview", isActive: true },
+    { label:<RiPieChart2Line />,name: "Chart", isActive: false },
+    { label:<GoCreditCard/>,name: "Transactions", isActive: false },
+    { label:<BsBagDash/>,name: "Wallet", isActive: false },
+    { label:<MdMailOutline/>,name: "Mail Box", isActive: false },
+    { label:<LuSettings/>,name: "Setting", isActive: false },
+    { label:<BiLogOut/>,name: "Logout", isActive: false },
   ];
 
   return (
     <div className="bg-gray-200 text-gray-600 w-64 h-screen flex flex-col py-4">
-      <h1 className="text-center text-2xl font-bold mb-6 text-black-600">
+      <h1 className="text-center text-2xl font-bold mb-6 text-black">
         CryptX
       </h1>
       <ul className="space-y-4">
@@ -27,7 +35,10 @@ const Sidebar = () => {
             {item.isActive && (
               <span className="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-purple-600 rounded-full"></span>
             )}
-            {item.name}
+            <div className="flex items-center space-x-2">
+              {item.label} {/* Icon */}
+              <span>{item.name}</span> {/* Text */}
+            </div>
           </li>
         ))}
       </ul>
