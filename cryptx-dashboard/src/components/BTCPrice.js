@@ -156,7 +156,7 @@ const BTCPrices = () => {
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">BTC Prices (Last 6 Months)</h2>
+      <h2 className="text-xl font-bold mb-4">BTC Prices </h2>
       <div className="relative">
         <Line data={data} options={options} />
         {hoveredPrice !== null && hoveredLabel !== null && (

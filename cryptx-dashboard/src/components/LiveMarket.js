@@ -11,6 +11,10 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import Litecoin from "../assets/Lit.png";
+import Bitcoin from "../assets/Bit.png";
+import Cardano from "../assets/car.png";
+import Ethereum from "../assets/Eth.png";
 
 // Register required chart components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -27,16 +31,28 @@ const LiveMarket = () => {
           ["bitcoin", "ethereum", "litecoin", "cardano"].includes(crypto.id)
         );
 
-        // Map the data to include the required information
-        const marketInfo = cryptos.map((crypto) => ({
-          name: crypto.name,
-          symbol: crypto.symbol,
-          price: parseFloat(crypto.priceUsd).toFixed(2),
-          change: parseFloat(crypto.changePercent24Hr).toFixed(2),
-          logo: crypto.logo, // Logo (Icon) URL from CoinCap API
-          history: Array.from({ length: 30 }, () => Math.random() * 800), // Fake data for chart
-        }));
+        // Fetch historical data for the graphs
+        const historicalDataPromises = cryptos.map(async (crypto) => {
+          const historyResponse = await axios.get(
+            `https://api.coincap.io/v2/assets/${crypto.id}/history?interval=d1`
+          );
 
+          // Extract price history for the last 30 days
+          const history = historyResponse.data.data.slice(-30).map((item) => parseFloat(item.priceUsd));
+
+          return {
+            id: crypto.id,
+            name: crypto.name,
+            symbol: crypto.symbol,
+            price: parseFloat(crypto.priceUsd).toFixed(2),
+            change: parseFloat(crypto.changePercent24Hr).toFixed(2),
+            tradingPair: `${crypto.symbol} / USDT`,
+            logo: getLogo(crypto.id),
+            history,
+          };
+        });
+
+        const marketInfo = await Promise.all(historicalDataPromises);
         setMarketData(marketInfo);
       } catch (error) {
         console.error("Error fetching market data:", error);
@@ -45,6 +61,22 @@ const LiveMarket = () => {
 
     fetchData();
   }, []);
+
+  // Helper function to get the logo based on crypto ID
+  const getLogo = (id) => {
+    switch (id) {
+      case "bitcoin":
+        return Bitcoin;
+      case "ethereum":
+        return Ethereum;
+      case "litecoin":
+        return Litecoin;
+      case "cardano":
+        return Cardano;
+      default:
+        return null;
+    }
+  };
 
   const getGraphColor = (name) => {
     switch (name) {
@@ -65,47 +97,45 @@ const LiveMarket = () => {
     <div className="p-3 bg-white rounded-lg shadow-sm">
       <h2 className="text-lg font-semibold mb-3">Live Market</h2>
 
-      {/* Table Headers */}
-      <div className="grid grid-cols-4 text-xs font-medium text-gray-500 mb-3">
-        <div>Name</div>
-        <div>Change</div>
-        <div>Price</div>
-        <div>Graph</div>
-      </div>
-
       {/* Cryptocurrency Data */}
       <div className="space-y-3">
         {marketData.map((crypto, index) => (
           <div
             key={index}
-            className="grid grid-cols-4 items-center p-2 bg-gray-50 rounded-lg shadow-sm"
+            className="grid grid-cols-4 items-center p-3 bg-gray-50 rounded-lg shadow-sm"
           >
             {/* Name, Symbol, and Icon */}
             <div className="flex items-center space-x-3">
-              <div className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-200">
-                <img
-                  src={crypto.logo} // Display the logo
-                  alt={crypto.name}
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              <img
+                src={crypto.logo}
+                alt={crypto.name}
+                className="w-10 h-10 object-contain"
+              />
               <div>
-                <h3 className="text-xs font-medium">{crypto.name}</h3>
-                <p className="text-xs text-gray-500">{crypto.symbol}</p>
+                <h3 className="text-sm font-medium">{crypto.name}</h3>
+                <p className="text-xs text-gray-500">{crypto.tradingPair}</p>
               </div>
             </div>
 
-            {/* Change */}
-            <div
-              className={`text-xs font-bold ${
-                crypto.change > 0 ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              {crypto.change > 0 ? `+${crypto.change}%` : `${crypto.change}%`}
+            {/* Change Heading and Value */}
+            <div className="text-center">
+              <p className="text-xs font-medium text-gray-500">Change</p>
+              <div
+                className={`text-sm font-bold ${
+                  crypto.change > 0 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {crypto.change > 0 ? `+${crypto.change}%` : `${crypto.change}%`}
+              </div>
             </div>
 
-            {/* Price */}
-            <div className="text-xs font-medium">${crypto.price}</div>
+            {/* Price Heading and Value */}
+            <div className="text-center">
+              <p className="text-xs font-medium text-gray-500">Price</p>
+              <div className="text-sm font-medium">
+                ${Number(crypto.price).toLocaleString()} USD
+              </div>
+            </div>
 
             {/* Graph */}
             <div className="w-full h-12">

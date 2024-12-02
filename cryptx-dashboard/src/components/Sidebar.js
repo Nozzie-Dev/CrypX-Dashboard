@@ -5,23 +5,25 @@ import { BsBagDash } from "react-icons/bs";
 import { LuSettings } from "react-icons/lu";
 import { BiLogOut } from "react-icons/bi";
 import { MdMailOutline } from "react-icons/md";
+import Logo from "../assets/Logo.png"; // Import the logo correctly
 
 const Sidebar = () => {
   const menuItems = [
     { label: <SiWindows11 />, name: "Overview", isActive: true },
-    { label:<RiPieChart2Line />,name: "Chart", isActive: false },
-    { label:<GoCreditCard/>,name: "Transactions", isActive: false },
-    { label:<BsBagDash/>,name: "Wallet", isActive: false },
-    { label:<MdMailOutline/>,name: "Mail Box", isActive: false },
-    { label:<LuSettings/>,name: "Setting", isActive: false },
-    { label:<BiLogOut/>,name: "Logout", isActive: false },
+    { label: <RiPieChart2Line />, name: "Chart", isActive: false },
+    { label: <GoCreditCard />, name: "Transactions", isActive: false },
+    { label: <BsBagDash />, name: "Wallet", isActive: false },
+    { label: <MdMailOutline />, name: "Mail Box", isActive: false },
+    { label: <LuSettings />, name: "Setting", isActive: false },
+    { label: <BiLogOut />, name: "Logout", isActive: false },
   ];
 
   return (
     <div className="bg-gray-200 text-gray-600 w-64 h-screen flex flex-col py-4">
-      <h1 className="text-center text-2xl font-bold mb-6 text-black">
-        CryptX
-      </h1>
+      <div className="flex items-center justify-center mb-6 space-x-2">
+        <img src={Logo} alt="CryptX Logo" className="h-6 w-auto" /> {/* Smaller logo */}
+        <h1 className="text-2xl font-bold text-black">CryptX</h1>
+      </div>
       <ul className="space-y-4">
         {menuItems.map((item, index) => (
           <li
