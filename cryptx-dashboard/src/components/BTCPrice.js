@@ -15,32 +15,40 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip,
 
 const BTCPrices = () => {
   const [btcPrices, setBtcPrices] = useState([]);
+  const [labels, setLabels] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [hoveredPrice, setHoveredPrice] = useState(null);
   const [hoveredLabel, setHoveredLabel] = useState(null);
+  const [clickedPrice, setClickedPrice] = useState(null);
+  const [clickedLabel, setClickedLabel] = useState(null);
 
   useEffect(() => {
     const fetchBTCData = async () => {
       try {
-        // Fetch historical BTC data from CoinCap
+        // Fetch historical BTC data from CoinCap for the last 6 months 
         const historicalResponse = await axios.get(
           "https://api.coincap.io/v2/assets/bitcoin/history",
           {
             params: {
-              interval: "m1", // Monthly interval (last 6 months)
+              interval: "d1", 
+              limit: 180, 
             },
           }
         );
 
         const historicalData = historicalResponse.data.data.map((entry) => ({
-          date: new Date(entry.time).toLocaleString("default", { month: "short" }),
+          date: new Date(entry.time),
           price: parseFloat(entry.priceUsd),
         }));
 
-        // Extract the last 6 months of prices
-        const prices = historicalData.slice(-6);
-        setBtcPrices(prices.map((entry) => entry.price));
-        setCurrentPrice(prices[prices.length - 1].price); // Set the latest price
+        // Group the data by month and calculate the average price for each month
+        const groupedData = groupDataByMonth(historicalData);
+        const prices = groupedData.map((entry) => entry.avgPrice);
+        const months = groupedData.map((entry) => entry.monthLabel);
+
+        setBtcPrices(prices);
+        setLabels(months);
+        setCurrentPrice(prices[prices.length - 1]); 
       } catch (error) {
         console.error("Error fetching BTC data:", error);
       }
@@ -49,12 +57,53 @@ const BTCPrices = () => {
     fetchBTCData();
   }, []);
 
+  const groupDataByMonth = (data) => {
+    const grouped = [];
+    let currentMonth = data[0].date.getMonth();
+    let currentYear = data[0].date.getFullYear();
+    let currentMonthData = [];
+
+    data.forEach((entry) => {
+      const entryMonth = entry.date.getMonth();
+      const entryYear = entry.date.getFullYear();
+
+      if (entryMonth === currentMonth && entryYear === currentYear) {
+        currentMonthData.push(entry.price);
+      } else {
+        const avgPrice =
+          currentMonthData.reduce((acc, price) => acc + price, 0) /
+          currentMonthData.length;
+        grouped.push({
+          monthLabel: `${new Date(currentYear, currentMonth).toLocaleString("default", { month: "short" })} ${currentYear}`,
+          avgPrice,
+        });
+        currentMonthData = [entry.price];
+        currentMonth = entryMonth;
+        currentYear = entryYear;
+      }
+    });
+
+    // Add the last month data
+    if (currentMonthData.length > 0) {
+      const avgPrice =
+        currentMonthData.reduce((acc, price) => acc + price, 0) /
+        currentMonthData.length;
+      grouped.push({
+        monthLabel: `${new Date(currentYear, currentMonth).toLocaleString("default", { month: "short" })} ${currentYear}`,
+        avgPrice,
+      });
+    }
+
+    
+    return grouped.slice(-6);
+  };
+
   const data = {
-    labels: ["Jan", "Mar", "May", "Jul", "Sep", "Nov"], // Static labels for visualization
+    labels, 
     datasets: [
       {
         label: "BTC Price",
-        data: btcPrices, // Use live BTC prices
+        data: btcPrices, 
         borderColor: "#7B61FF",
         borderWidth: 2,
         pointBackgroundColor: "#7B61FF",
@@ -69,14 +118,7 @@ const BTCPrices = () => {
     responsive: true,
     plugins: {
       tooltip: {
-        enabled: false, // Disable the default tooltip
-        backgroundColor: "#7B61FF",
-        titleColor: "#ffffff",
-        bodyColor: "#ffffff",
-        displayColors: false,
-        callbacks: {
-          label: (tooltipItem) => `$${tooltipItem.raw.toFixed(2)}`,
-        },
+        enabled: false, 
       },
     },
     scales: {
@@ -96,18 +138,25 @@ const BTCPrices = () => {
         if (chartElement && chartElement.length > 0) {
           const index = chartElement[0].index;
           setHoveredPrice(btcPrices[index]);
-          setHoveredLabel(data.labels[index]);
+          setHoveredLabel(labels[index]);
         } else {
           setHoveredPrice(null);
           setHoveredLabel(null);
         }
       },
     },
+    onClick: (event, chartElement) => {
+      if (chartElement && chartElement.length > 0) {
+        const index = chartElement[0].index;
+        setClickedPrice(btcPrices[index]);
+        setClickedLabel(labels[index]);
+      }
+    },
   };
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">BTC Prices</h2>
+      <h2 className="text-xl font-bold mb-4">BTC Prices (Last 6 Months)</h2>
       <div className="relative">
         <Line data={data} options={options} />
         {hoveredPrice !== null && hoveredLabel !== null && (
@@ -119,6 +168,12 @@ const BTCPrices = () => {
         {currentPrice && !hoveredPrice && (
           <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-purple-500 text-white px-3 py-1 rounded-lg shadow-lg">
             ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </div>
+        )}
+        {clickedPrice !== null && clickedLabel !== null && (
+          <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-green-500 text-white px-3 py-1 rounded-lg shadow-lg">
+            <p>{clickedLabel}</p>
+            <p>${clickedPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </div>
         )}
       </div>
