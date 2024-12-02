@@ -103,13 +103,13 @@ const App = () => {
         <div className="p-8 border rounded shadow-lg space-y-4 w-80">
           <div className="flex justify-between">
             <button
-              className={`w-1/2 p-2 ${isLogin ? "bg-blue-500" : "bg-gray-200"}`}
+              className={`w-1/2 p-2 ${isLogin ? "bg-purple-500" : "bg-gray-200"}`}
               onClick={toggleForm}
             >
               Login
             </button>
             <button
-              className={`w-1/2 p-2 ${!isLogin ? "bg-blue-500" : "bg-gray-200"}`}
+              className={`w-1/2 p-2 ${!isLogin ? "bg-purple-500" : "bg-gray-200"}`}
               onClick={toggleForm}
             >
               Register
@@ -160,7 +160,7 @@ const App = () => {
                   onChange={(e) => isLogin ? setLoginPassword(e.target.value) : setRegisterPassword(e.target.value)}
                 />
             </div>
-            <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+            <button type="submit" className="w-full bg-purple-500 text-white p-2 rounded">
               {isLogin ? "Login" : "Register"}
             </button>
           </form>
